@@ -9,47 +9,36 @@
     <span></span>
     <div id="output"></div>
     <script type="text/javascript">
-    const span = document.querySelector("span");
-    const progress = document.getElementById('progress');
-    const output = document.getElementById('output');
+    var span = document.querySelector("span");
+    var progress = document.getElementById('progress');
+    var load = document.getElementById('output');
       // une fois que le DOM a chargé
-      const jsonFile = 'https://ipfs.infura.io/ipfs/QmUncLe1PecbpRANzrg9XW9QGCPwkdipPs8ccrQxe7ud8v'
+      const json = 'https://ipfs.infura.io/ipfs/QmUncLe1PecbpRANzrg9XW9QGCPwkdipPs8ccrQxe7ud8v'
       document.addEventListener('DOMContentLoaded', () => {
-        var oReq = new XMLHttpRequest();
+        // instanciation de l'objet XHR
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', json, true);
+        xhr.send(null);
 
-        oReq.open("get", jsonFile, true);
-        oReq.send();
+        xhr.addEventListener('progress', event => {
+      console.log(event)
+      // analyser les informations de l'objet event
+      let pourcentage = (event.loaded / event.total)*100;
+      span.innerHTML = pourcentage.toFixed(2) + '%';
+      progress.value = pourcentage.toFixed(2);
+      // qui vont vous permettre de calculer un %
+  }) // end of progress
 
-        oReq.addEventListener("progress", updateProgress, false);
-        oReq.addEventListener("load", transferComplete, false);
-        oReq.addEventListener("error", transferFailed, false);
-        oReq.addEventListener("abort", transferCanceled, false);
+  xhr.addEventListener('load', event => {
+    if (xhr.status === 200) {
+      output.innerHTML = xhr.responseText;
+    }
+  });
 
-        // ...
+  xhr.addEventListener('loadend', event => {
+      span.innerHTML = '100%';
+  })
 
-        // progression des transferts depuis le serveur jusqu'au client (téléchargement)
-        function updateProgress (oEvent) {
-          if (oEvent.lengthComputable) {
-            var percentComplete = Math.round((oEvent.loaded / oEvent.total) * 100) + "%";
-            console.log(percentComplete)
-            // ...
-          } else {
-            // Impossible de calculer la progression puisque la taille totale est inconnue
-            console.log("Impossible de calculer la progression puisque la taille totale est inconnue")
-          }
-        }
-
-        function transferComplete(evt) {
-          alert("Le transfert est terminé.");
-        }
-
-        function transferFailed(evt) {
-          alert("Une erreur est survenue pendant le transfert du fichier.");
-        }
-
-        function transferCanceled(evt) {
-          alert("Le transfert a été annulé par l'utilisateur.");
-        }
       }); // end of DOMContentLoaded
 
     </script>
